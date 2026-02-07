@@ -1,0 +1,96 @@
+<app-ui-modal
+  [isOpen]="isOpen"
+  [title]="getModalTitle()"
+  size="large"
+  [closeOnBackdrop]="false"
+  (closed)="close()"
+>
+  <div class="composer">
+    <!-- Title Input -->
+    <div class="form-group">
+      <label class="form-label">Title (Optional)</label>
+      <input
+        type="text"
+        class="form-input"
+        placeholder="Give your meme a catchy title..."
+        [(ngModel)]="title"
+      />
+    </div>
+
+    <!-- Body Textarea -->
+    <div class="form-group">
+      <label class="form-label">
+        Body <span class="required">*</span>
+      </label>
+      <textarea
+        class="form-textarea"
+        placeholder="Share your meme... Use ||text|| for spoilers"
+        [(ngModel)]="body"
+        rows="8"
+        required
+      ></textarea>
+      <div class="form-hint">
+        Tip: Wrap text with ||spoiler|| to hide content that can be revealed
+      </div>
+    </div>
+
+    <!-- Mood Selector -->
+    <div class="form-group">
+      <label class="form-label">Mood</label>
+      <select class="form-select" [(ngModel)]="mood">
+        <option value="">Select a mood...</option>
+        <option *ngFor="let moodOption of availableMoods" [value]="moodOption">
+          {{ moodOption }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Tags -->
+    <div class="form-group">
+      <label class="form-label">Tags</label>
+      <div class="tags-input-container">
+        <div class="tags-list" *ngIf="tags.length > 0">
+          <app-ui-tag
+            *ngFor="let tag of tags"
+            color="blue"
+            [removable]="true"
+            (removed)="removeTag(tag)"
+          >
+            {{ tag }}
+          </app-ui-tag>
+        </div>
+        <div class="tag-input-wrapper">
+          <input
+            type="text"
+            class="form-input tag-input"
+            placeholder="Add tags..."
+            [(ngModel)]="newTag"
+            (keydown)="onTagKeydown($event)"
+          />
+          <app-ui-button
+            variant="ghost"
+            size="small"
+            [disabled]="!newTag.trim()"
+            (clicked)="addTag()"
+          >
+            Add
+          </app-ui-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="composer-actions">
+      <app-ui-button variant="ghost" (clicked)="close()">
+        Cancel
+      </app-ui-button>
+      <app-ui-button
+        variant="primary"
+        [disabled]="!canSubmit()"
+        (clicked)="submit()"
+      >
+        {{ editingPost ? 'Update Post' : 'Create Post' }}
+      </app-ui-button>
+    </div>
+  </div>
+</app-ui-modal>

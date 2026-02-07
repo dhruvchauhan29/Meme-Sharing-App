@@ -1,0 +1,156 @@
+.post-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.post-author {
+  font-weight: 600;
+  color: #111827;
+}
+
+.post-separator {
+  color: #9ca3af;
+}
+
+.post-team {
+  color: #6b7280;
+}
+
+.post-time {
+  color: #9ca3af;
+}
+
+.post-mood {
+  font-size: 24px;
+}
+
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.spoiler-controls {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+}
+
+.post-body {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #111827;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.body-text {
+  /* Normal text */
+}
+
+.spoiler {
+  background-color: #374151;
+  color: #374151;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.spoiler:hover {
+  background-color: #4b5563;
+}
+
+.spoiler.revealed {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.post-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.action-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Confirm Dialog */
+.confirm-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.confirm-dialog p {
+  margin: 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Flag Dialog */
+.flag-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.flag-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.flag-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.flag-textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.flag-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
