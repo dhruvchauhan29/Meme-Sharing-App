@@ -1,0 +1,4 @@
+<span [class]="'tag tag-' + color">
+  <ng-content></ng-content>
+  <button *ngIf="removable" class="tag-remove" (click)="onRemove($event)">×</button>
+</span>
