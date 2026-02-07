@@ -1,1 +1,149 @@
-<p>feed works!</p>
+<div class="feed-container">
+  <!-- Header -->
+  <div class="feed-header">
+    <h1>HashedIn Meme Forum</h1>
+    <app-ui-button variant="primary" (clicked)="openComposer()">
+      + New Post
+    </app-ui-button>
+  </div>
+
+  <!-- Filters -->
+  <app-ui-card padding="medium">
+    <div class="filters">
+      <!-- Search -->
+      <div class="filter-row">
+        <app-ui-input
+          type="search"
+          placeholder="Search posts..."
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange()"
+        ></app-ui-input>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label">Team:</label>
+          <select class="filter-select" [(ngModel)]="selectedTeam" (ngModelChange)="onTeamChange()">
+            <option value="">All Teams</option>
+            <option *ngFor="let team of availableTeams" [value]="team">{{ team }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Mood:</label>
+          <select class="filter-select" [(ngModel)]="selectedMood" (ngModelChange)="onMoodChange()">
+            <option value="">All Moods</option>
+            <option *ngFor="let mood of availableMoods" [value]="mood">{{ mood }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Sort:</label>
+          <select class="filter-select" [(ngModel)]="sortOrder" (ngModelChange)="onSortChange(sortOrder)">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="filter-row" *ngIf="availableTags.length > 0">
+        <label class="filter-label">Tags:</label>
+        <div class="tags-container">
+          <app-ui-tag
+            *ngFor="let tag of availableTags"
+            [color]="isTagSelected(tag) ? 'blue' : 'gray'"
+            (click)="onTagToggle(tag)"
+            style="cursor: pointer;"
+          >
+            {{ tag }}
+          </app-ui-tag>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="filter-row filter-actions">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="showSavedOnly" (ngModelChange)="onSavedOnlyToggle()">
+          Show saved only
+        </label>
+        <app-ui-button variant="ghost" size="small" (clicked)="clearFilters()">
+          Clear Filters
+        </app-ui-button>
+      </div>
+    </div>
+  </app-ui-card>
+
+  <!-- Results Count -->
+  <div class="results-info">
+    Showing {{ filteredPosts.length }} of {{ posts.length }} posts
+  </div>
+
+  <!-- Posts Feed -->
+  <div class="posts-feed">
+    <app-ui-card
+      *ngFor="let post of filteredPosts"
+      [hoverable]="true"
+      padding="medium"
+      class="post-card"
+      (click)="openPost(post)"
+    >
+      <div class="post-header">
+        <div class="post-meta">
+          <span class="post-author">{{ post.authorName }}</span>
+          <span class="post-separator">•</span>
+          <span class="post-team">{{ post.team }}</span>
+          <span class="post-separator">•</span>
+          <span class="post-time">{{ getRelativeTime(post.createdAt) }}</span>
+        </div>
+        <span class="post-mood">{{ post.mood }}</span>
+      </div>
+
+      <h3 *ngIf="post.title" class="post-title">{{ post.title }}</h3>
+
+      <p class="post-body">{{ getPostPreview(post.body) }}</p>
+
+      <div class="post-footer">
+        <div class="post-tags">
+          <app-ui-tag *ngFor="let tag of post.tags" color="gray">
+            {{ tag }}
+          </app-ui-tag>
+        </div>
+
+        <div class="post-actions">
+          <span class="post-action" [class.active]="isPostLiked(post.id)">
+            ❤️ {{ getLikeCount(post.id) }}
+          </span>
+          <span class="post-action" [class.active]="isPostBookmarked(post.id)">
+            🔖
+          </span>
+        </div>
+      </div>
+    </app-ui-card>
+
+    <div *ngIf="filteredPosts.length === 0" class="empty-state">
+      <p>No posts found matching your criteria.</p>
+      <app-ui-button variant="primary" (clicked)="clearFilters()">
+        Clear Filters
+      </app-ui-button>
+    </div>
+  </div>
+</div>
+
+<!-- Post Detail Modal -->
+<app-post-detail
+  *ngIf="selectedPost"
+  [post]="selectedPost"
+  [isOpen]="isPostDetailOpen"
+  (closed)="closePostDetail()"
+  (postUpdated)="onPostUpdated()"
+  (postDeleted)="onPostDeleted()"
+></app-post-detail>
+
+<!-- Post Composer Modal -->
+<app-post-composer
+  [isOpen]="isComposerOpen"
+  (closed)="closeComposer()"
+  (postCreated)="onPostCreated()"
+></app-post-composer>

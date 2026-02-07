@@ -1,1 +1,168 @@
-<p>post-detail works!</p>
+<app-ui-modal
+  [isOpen]="isOpen"
+  [title]="post.title || 'Post'"
+  size="large"
+  (closed)="close()"
+>
+  <div *ngIf="post" class="post-detail">
+    <!-- Post Header -->
+    <div class="post-header">
+      <div class="post-meta">
+        <span class="post-author">{{ post.authorName }}</span>
+        <span class="post-separator">•</span>
+        <span class="post-team">{{ post.team }}</span>
+        <span class="post-separator">•</span>
+        <span class="post-time">{{ getRelativeTime(post.createdAt) }}</span>
+      </div>
+      <span class="post-mood">{{ post.mood }}</span>
+    </div>
+
+    <!-- Post Tags -->
+    <div class="post-tags" *ngIf="post.tags.length > 0">
+      <app-ui-tag *ngFor="let tag of post.tags" color="blue">
+        {{ tag }}
+      </app-ui-tag>
+    </div>
+
+    <!-- Spoiler Controls -->
+    <div class="spoiler-controls" *ngIf="hasSpoilers()">
+      <app-ui-button variant="ghost" size="small" (clicked)="expandAllSpoilers()">
+        Expand All Spoilers
+      </app-ui-button>
+      <app-ui-button variant="ghost" size="small" (clicked)="collapseAllSpoilers()">
+        Collapse All Spoilers
+      </app-ui-button>
+    </div>
+
+    <!-- Post Body -->
+    <div class="post-body">
+      <span *ngFor="let segment of bodySegments">
+        <span *ngIf="!segment.isSpoiler" class="body-text">{{ segment.text }}</span>
+        <span
+          *ngIf="segment.isSpoiler"
+          class="spoiler"
+          [class.revealed]="segment.isRevealed"
+          (click)="toggleSpoiler(segment)"
+        >
+          {{ segment.isRevealed ? segment.text : '▐ Click to reveal spoiler ▐' }}
+        </span>
+      </span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="post-actions">
+      <div class="action-row">
+        <app-ui-button
+          variant="ghost"
+          size="medium"
+          (clicked)="toggleLike()"
+        >
+          {{ isLiked ? '❤️' : '🤍' }} Like ({{ likeCount }})
+        </app-ui-button>
+
+        <app-ui-button
+          variant="ghost"
+          size="medium"
+          (clicked)="toggleBookmark()"
+        >
+          {{ isBookmarked ? '🔖' : '📑' }} {{ isBookmarked ? 'Saved' : 'Save' }}
+        </app-ui-button>
+
+        <app-ui-button
+          variant="ghost"
+          size="medium"
+          (clicked)="copyLink()"
+        >
+          🔗 Copy Link
+        </app-ui-button>
+      </div>
+
+      <div class="action-row">
+        <app-ui-button
+          *ngIf="canEdit()"
+          variant="secondary"
+          size="medium"
+          (clicked)="openEditDialog()"
+        >
+          ✏️ Edit
+        </app-ui-button>
+
+        <app-ui-button
+          *ngIf="canEdit()"
+          variant="danger"
+          size="medium"
+          (clicked)="openDeleteConfirm()"
+        >
+          🗑️ Delete
+        </app-ui-button>
+
+        <app-ui-button
+          variant="ghost"
+          size="medium"
+          (clicked)="openFlagDialog()"
+        >
+          🚩 Report
+        </app-ui-button>
+      </div>
+    </div>
+  </div>
+</app-ui-modal>
+
+<!-- Edit Dialog -->
+<app-post-composer
+  *ngIf="post"
+  [isOpen]="isEditing"
+  [editingPost]="post"
+  (closed)="closeEditDialog()"
+  (postCreated)="onPostEdited()"
+></app-post-composer>
+
+<!-- Delete Confirmation Dialog -->
+<app-ui-modal
+  [isOpen]="showDeleteConfirm"
+  title="Delete Post"
+  size="small"
+  (closed)="closeDeleteConfirm()"
+>
+  <div class="confirm-dialog">
+    <p>Are you sure you want to delete this post? This action cannot be undone.</p>
+    <div class="confirm-actions">
+      <app-ui-button variant="ghost" (clicked)="closeDeleteConfirm()">
+        Cancel
+      </app-ui-button>
+      <app-ui-button variant="danger" (clicked)="confirmDelete()">
+        Delete
+      </app-ui-button>
+    </div>
+  </div>
+</app-ui-modal>
+
+<!-- Flag Dialog -->
+<app-ui-modal
+  [isOpen]="showFlagDialog"
+  title="Report Post"
+  size="small"
+  (closed)="closeFlagDialog()"
+>
+  <div class="flag-dialog">
+    <label class="flag-label">Reason for reporting:</label>
+    <textarea
+      class="flag-textarea"
+      [(ngModel)]="flagReason"
+      placeholder="Please describe why you're reporting this post..."
+      rows="4"
+    ></textarea>
+    <div class="flag-actions">
+      <app-ui-button variant="ghost" (clicked)="closeFlagDialog()">
+        Cancel
+      </app-ui-button>
+      <app-ui-button
+        variant="danger"
+        [disabled]="!flagReason.trim()"
+        (clicked)="submitFlag()"
+      >
+        Submit Report
+      </app-ui-button>
+    </div>
+  </div>
+</app-ui-modal>
