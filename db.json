@@ -1,0 +1,163 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "alice@hashedin.com",
+      "password": "$2a$10$8K1p/a0dL3FKk/OcGXZ4JeZ7Y5Q0p3e8d3yYa7h.R0c8Q8p3e8d3y",
+      "name": "Alice Johnson",
+      "team": "Engineering",
+      "role": "user"
+    },
+    {
+      "id": 2,
+      "email": "bob@hashedin.com",
+      "password": "$2a$10$8K1p/a0dL3FKk/OcGXZ4JeZ7Y5Q0p3e8d3yYa7h.R0c8Q8p3e8d3y",
+      "name": "Bob Smith",
+      "team": "Design",
+      "role": "user"
+    },
+    {
+      "id": 3,
+      "email": "admin@hashedin.com",
+      "password": "$2a$10$8K1p/a0dL3FKk/OcGXZ4JeZ7Y5Q0p3e8d3yYa7h.R0c8Q8p3e8d3y",
+      "name": "Admin User",
+      "team": "Engineering",
+      "role": "admin"
+    }
+  ],
+  "posts": [
+    {
+      "id": 1,
+      "userId": 1,
+      "authorName": "Alice Johnson",
+      "team": "Engineering",
+      "tags": ["work", "coding", "humor"],
+      "mood": "😊 Happy",
+      "title": "When your code works on the first try",
+      "body": "Me: *writes code*\nCode: *compiles without errors*\nMe: Wait, that's illegal 🤔\n\n||Spoiler: It had bugs in production||",
+      "isDeleted": false,
+      "createdAt": 1707480000000,
+      "updatedAt": 1707480000000
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "authorName": "Bob Smith",
+      "team": "Design",
+      "tags": ["design", "clients", "funny"],
+      "mood": "😅 Amused",
+      "title": "Client feedback be like",
+      "body": "Client: \"Can you make the logo bigger?\"\nMe: \"Sure\"\nClient: \"Actually, make it smaller\"\nMe: \"No problem\"\nClient: \"You know what, bigger is better\"\n\nThis went on for 47 iterations... ||Spoiler: They chose the original size||",
+      "isDeleted": false,
+      "createdAt": 1707472800000,
+      "updatedAt": 1707472800000
+    },
+    {
+      "id": 3,
+      "userId": 1,
+      "authorName": "Alice Johnson",
+      "team": "Engineering",
+      "tags": ["meetings", "relatable"],
+      "mood": "🙄 Annoyed",
+      "title": "Another meeting that could have been an email",
+      "body": "Actual meeting duration: 1 hour\nUseful information shared: 5 minutes\nTime spent listening to people who love hearing themselves talk: 55 minutes",
+      "isDeleted": false,
+      "createdAt": 1707465600000,
+      "updatedAt": 1707465600000
+    },
+    {
+      "id": 4,
+      "userId": 1,
+      "authorName": "Alice Johnson",
+      "team": "Engineering",
+      "tags": ["debugging", "late-night", "coding"],
+      "mood": "😴 Tired",
+      "title": "3 AM debugging session",
+      "body": "Me at 3 AM: *finally finds the bug*\nThe bug: a missing semicolon from 2 weeks ago\nMe: ||Spoiler: I'm questioning all my life choices||",
+      "isDeleted": false,
+      "createdAt": 1707458400000,
+      "updatedAt": 1707458400000
+    },
+    {
+      "id": 5,
+      "userId": 2,
+      "authorName": "Bob Smith",
+      "team": "Design",
+      "tags": ["social-media", "trends"],
+      "mood": "🎉 Excited",
+      "title": "When the campaign goes viral",
+      "body": "That moment when your meme marketing campaign actually works and the engagement goes through the roof 🚀\n\nCEO: \"Great work!\"\nMe: *frantically trying to remember what I did*",
+      "isDeleted": false,
+      "createdAt": 1707451200000,
+      "updatedAt": 1707451200000
+    },
+    {
+      "id": 6,
+      "userId": 1,
+      "authorName": "Alice Johnson",
+      "team": "Engineering",
+      "tags": ["git", "version-control", "oops"],
+      "mood": "😱 Shocked",
+      "title": "Git troubles",
+      "body": "Just typed \"git push --force\" on the main branch...\n\n||Spoiler: The entire team is now hunting me down||\n\nUpdate: I've been told to update my resume",
+      "isDeleted": false,
+      "createdAt": 1707444000000,
+      "updatedAt": 1707444000000
+    },
+    {
+      "id": 7,
+      "userId": 2,
+      "authorName": "Bob Smith",
+      "team": "Design",
+      "tags": ["tools", "figma"],
+      "mood": "😎 Cool",
+      "title": "Pixel perfect or pixel disaster?",
+      "body": "Designers: *spends hours perfecting a design*\nDevelopers: *implements with 2px off*\nDesigners: \"MY EYES! MY BEAUTIFUL DESIGN!\"\n\nTrue story from this morning's standup",
+      "isDeleted": false,
+      "createdAt": 1707436800000,
+      "updatedAt": 1707436800000
+    },
+    {
+      "id": 8,
+      "userId": 1,
+      "authorName": "Alice Johnson",
+      "team": "Engineering",
+      "tags": ["features", "scope-creep"],
+      "mood": "😤 Frustrated",
+      "title": "Just a small feature",
+      "body": "Stakeholder: \"This is just a small feature, shouldn't take long\"\nMe: *creates 47-page technical specification*\nStakeholder: \"Wait, I didn't mean...\"\n\n||Spoiler: The \"small feature\" took 3 sprints||",
+      "isDeleted": false,
+      "createdAt": 1707429600000,
+      "updatedAt": 1707429600000
+    },
+    {
+      "id": 9,
+      "userId": 2,
+      "authorName": "Bob Smith",
+      "team": "Design",
+      "tags": ["remote", "work-life"],
+      "mood": "😊 Happy",
+      "title": "WFH perks",
+      "body": "Best part about working from home:\n- No commute\n- Comfy clothes\n- Can make fresh coffee anytime\n\n||Spoiler: Also means eating the entire fridge during meetings||",
+      "isDeleted": false,
+      "createdAt": 1707422400000,
+      "updatedAt": 1707422400000
+    },
+    {
+      "id": 10,
+      "userId": 1,
+      "authorName": "Alice Johnson",
+      "team": "Engineering",
+      "tags": ["deployment", "production"],
+      "mood": "😰 Nervous",
+      "title": "Friday deployments",
+      "body": "Boss: \"Let's deploy to production on Friday afternoon\"\nMe: *sweating nervously*\n\n||Spoiler: Spent the whole weekend fixing issues||",
+      "isDeleted": false,
+      "createdAt": 1707415200000,
+      "updatedAt": 1707415200000
+    }
+  ],
+  "likes": [],
+  "bookmarks": [],
+  "flags": []
+}
