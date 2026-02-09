@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { Post, User } from '../../core/models';
+import { Post, User, Like, Bookmark } from '../../core/models';
 import { PostService } from '../../core/services/post.service';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -72,11 +72,11 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
       this.stats.totalPosts = this.userPosts.length;
 
       this.stats.totalLikes = this.userPosts.reduce((count, post) => {
-        return count + allLikes.filter((like: any) => like.postId === post.id).length;
+        return count + allLikes.filter((like: Like) => like.postId === post.id).length;
       }, 0);
 
       this.stats.totalBookmarks = this.userPosts.reduce((count, post) => {
-        return count + allBookmarks.filter((bookmark: any) => bookmark.postId === post.id).length;
+        return count + allBookmarks.filter((bookmark: Bookmark) => bookmark.postId === post.id).length;
       }, 0);
 
       this.loading = false;
