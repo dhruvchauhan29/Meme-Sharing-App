@@ -1,0 +1,133 @@
+<div class="post-detail-page">
+  <div class="page-header">
+    <app-ui-button variant="ghost" size="small" (clicked)="goBack()">
+      ← Back to Feed
+    </app-ui-button>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading post...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="error-state">
+    <p>{{ error }}</p>
+    <app-ui-button variant="primary" (clicked)="goBack()">
+      Back to Feed
+    </app-ui-button>
+  </div>
+
+  <app-ui-card *ngIf="post && !loading" padding="large">
+    <div class="post-header">
+      <div class="post-meta">
+        <span class="post-author">{{ post.authorName }}</span>
+        <span class="post-separator">•</span>
+        <span class="post-team">{{ post.team }}</span>
+        <span class="post-separator">•</span>
+        <span class="post-time">{{ getRelativeTime(post.createdAt) }}</span>
+        <span *ngIf="post.createdAt !== post.updatedAt" class="post-updated">
+          (edited {{ getRelativeTime(post.updatedAt) }})
+        </span>
+      </div>
+      <span class="post-mood">{{ post.mood }}</span>
+    </div>
+
+    <h1 *ngIf="post.title" class="post-title">{{ post.title }}</h1>
+
+    <div class="post-body">
+      <ng-container *ngFor="let segment of bodySegments">
+        <span *ngIf="segment.type === 'text'" class="body-text">{{ segment.content }}</span>
+        <span *ngIf="segment.type === 'spoiler'" class="spoiler-wrapper">
+          <span *ngIf="!segment.revealed" class="spoiler-hidden" (click)="revealSpoiler(segment)">
+            [Spoiler - Click to reveal]
+          </span>
+          <span *ngIf="segment.revealed" class="spoiler-revealed">
+            {{ segment.content }}
+            <button class="spoiler-hide-btn" (click)="hideSpoiler(segment)">Hide</button>
+          </span>
+        </span>
+      </ng-container>
+    </div>
+
+    <div class="post-tags">
+      <app-ui-tag *ngFor="let tag of post.tags" color="blue">
+        {{ tag }}
+      </app-ui-tag>
+    </div>
+
+    <div class="post-actions">
+      <app-ui-button
+        variant="ghost"
+        size="small"
+        [disabled]="isTogglingLike"
+        (clicked)="toggleLike()"
+      >
+        <span [class.active]="isLiked">❤️ {{ likeCount }}</span>
+      </app-ui-button>
+
+      <app-ui-button
+        variant="ghost"
+        size="small"
+        [disabled]="isTogglingBookmark"
+        (clicked)="toggleBookmark()"
+      >
+        <span [class.active]="isBookmarked">🔖 {{ isBookmarked ? 'Saved' : 'Save' }}</span>
+      </app-ui-button>
+
+      <app-ui-button
+        *ngIf="canEdit()"
+        variant="secondary"
+        size="small"
+        (clicked)="editPost()"
+      >
+        ✏️ Edit
+      </app-ui-button>
+
+      <app-ui-button
+        *ngIf="canDelete()"
+        variant="danger"
+        size="small"
+        [disabled]="isDeleting"
+        (clicked)="deletePost()"
+      >
+        🗑️ Delete
+      </app-ui-button>
+
+      <app-ui-button
+        *ngIf="canFlag() && !showFlagForm"
+        variant="ghost"
+        size="small"
+        (clicked)="openFlagForm()"
+      >
+        🚩 Report
+      </app-ui-button>
+    </div>
+
+    <div *ngIf="showFlagForm" class="flag-form">
+      <h3>Report Post</h3>
+      <textarea
+        class="flag-textarea"
+        placeholder="Please describe why you're reporting this post..."
+        [(ngModel)]="flagReason"
+        rows="4"
+      ></textarea>
+      <div class="flag-actions">
+        <app-ui-button
+          variant="danger"
+          size="small"
+          [disabled]="!flagReason.trim() || isFlagging"
+          (clicked)="submitFlag()"
+        >
+          Submit Report
+        </app-ui-button>
+        <app-ui-button
+          variant="ghost"
+          size="small"
+          [disabled]="isFlagging"
+          (clicked)="cancelFlag()"
+        >
+          Cancel
+        </app-ui-button>
+      </div>
+    </div>
+  </app-ui-card>
+</div>
