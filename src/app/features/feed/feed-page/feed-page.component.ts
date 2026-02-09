@@ -66,8 +66,8 @@ export class FeedPageComponent implements OnInit, OnDestroy {
       this.postService.likes$
     ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([posts]) => {
-        this.posts = posts;
+      .subscribe(() => {
+        this.posts = this.postService.getPosts();
         this.updateAvailableFilters();
         this.applyFilters();
       });
