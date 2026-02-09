@@ -118,6 +118,7 @@ export class EditPageComponent implements OnInit, OnDestroy, CanComponentDeactiv
       this.editForm.patchValue({
         title: draft.title || '',
         body: draft.body,
+        team: draft.team,
         mood: draft.mood,
         tags: draft.tags.join(', ')
       });
@@ -156,6 +157,7 @@ export class EditPageComponent implements OnInit, OnDestroy, CanComponentDeactiv
     const draft: Draft = {
       title: formValue.title,
       body: formValue.body,
+      team: formValue.team,
       tags,
       mood: formValue.mood,
       savedAt: Date.now()

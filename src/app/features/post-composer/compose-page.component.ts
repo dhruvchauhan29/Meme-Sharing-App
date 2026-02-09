@@ -70,6 +70,7 @@ export class ComposePageComponent implements OnInit, OnDestroy, CanComponentDeac
       this.composeForm.patchValue({
         title: draft.title || '',
         body: draft.body,
+        team: draft.team,
         mood: draft.mood,
         tags: draft.tags.join(', ')
       });
@@ -98,6 +99,7 @@ export class ComposePageComponent implements OnInit, OnDestroy, CanComponentDeac
     const draft: Draft = {
       title: formValue.title,
       body: formValue.body,
+      team: formValue.team,
       tags,
       mood: formValue.mood,
       savedAt: Date.now()
