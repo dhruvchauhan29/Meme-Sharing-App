@@ -1,0 +1,32 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <a routerLink="/feed" class="brand-link">🎭 Meme App</a>
+    </div>
+
+    <div class="navbar-menu">
+      <a routerLink="/feed" routerLinkActive="active" class="nav-link">Feed</a>
+
+      <ng-container *ngIf="currentUser$ | async as user; else guestMenu">
+        <a routerLink="/compose" routerLinkActive="active" class="nav-link">Create Post</a>
+        <a routerLink="/me/profile" routerLinkActive="active" class="nav-link">My Profile</a>
+        <a routerLink="/me/liked" routerLinkActive="active" class="nav-link">Liked</a>
+        <a routerLink="/me/saved" routerLinkActive="active" class="nav-link">Saved</a>
+
+        <a *ngIf="isAdmin()" routerLink="/admin/moderation" routerLinkActive="active" class="nav-link admin-link">
+          Admin
+        </a>
+
+        <div class="user-menu">
+          <span class="user-name">{{ user.name }}</span>
+          <button class="logout-button" (click)="logout()">Logout</button>
+        </div>
+      </ng-container>
+
+      <ng-template #guestMenu>
+        <a routerLink="/auth/login" routerLinkActive="active" class="nav-link">Login</a>
+        <a routerLink="/auth/register" routerLinkActive="active" class="nav-link btn-primary">Register</a>
+      </ng-template>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,97 @@
+<div class="profile-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading profile...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!loading && !error && currentUser" class="profile-content">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="user-avatar">
+        {{ currentUser.name.charAt(0).toUpperCase() }}
+      </div>
+      <div class="user-info">
+        <h1 class="user-name">{{ currentUser.name }}</h1>
+        <p class="user-email">{{ currentUser.email }}</p>
+        <div class="user-meta">
+          <span class="meta-item">
+            <strong>Team:</strong> {{ currentUser.team }}
+          </span>
+          <span class="meta-separator">•</span>
+          <span class="meta-item">
+            <strong>Role:</strong> {{ currentUser.role }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📝</div>
+        <div class="stat-value">{{ stats.totalPosts }}</div>
+        <div class="stat-label">Total Posts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">❤️</div>
+        <div class="stat-value">{{ stats.totalLikes }}</div>
+        <div class="stat-label">Likes Received</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔖</div>
+        <div class="stat-value">{{ stats.totalBookmarks }}</div>
+        <div class="stat-label">Bookmarks Received</div>
+      </div>
+    </div>
+
+    <!-- User Posts Section -->
+    <div class="posts-section">
+      <h2 class="section-title">My Posts</h2>
+
+      <div *ngIf="userPosts.length > 0" class="posts-list">
+        <div
+          *ngFor="let post of userPosts"
+          class="post-card"
+          [routerLink]="['/post', post.id]"
+        >
+          <div class="post-header">
+            <div class="post-meta">
+              <span class="post-time">{{ getRelativeTime(post.createdAt) }}</span>
+              <span class="post-separator">•</span>
+              <span class="post-team">{{ post.team }}</span>
+            </div>
+            <span class="post-mood">{{ post.mood }}</span>
+          </div>
+
+          <h3 *ngIf="post.title" class="post-title">{{ post.title }}</h3>
+          <p class="post-body">{{ getPostPreview(post.body) }}</p>
+
+          <div class="post-footer">
+            <div class="post-tags">
+              <span *ngFor="let tag of post.tags" class="post-tag">
+                {{ tag }}
+              </span>
+            </div>
+            <div class="post-stats">
+              <span class="stat-item">
+                <span class="stat-icon">❤️</span>
+                <span class="stat-count">{{ getLikeCount(post.id) }}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="userPosts.length === 0" class="empty-state">
+        <p>You haven't created any posts yet.</p>
+        <a class="primary-button" routerLink="/compose">Create Your First Post</a>
+      </div>
+    </div>
+  </div>
+</div>

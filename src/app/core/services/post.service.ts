@@ -1,133 +1,140 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap, map } from 'rxjs';
 import { Post, Like, Bookmark, Flag } from '../models';
-import { StorageService } from './storage.service';
-import { UserService } from './user.service';
-
-const POSTS_KEY = 'posts';
-const LIKES_KEY = 'likes';
-const BOOKMARKS_KEY = 'bookmarks';
-const FLAGS_KEY = 'flags';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PostService {
-  private postsSubject: BehaviorSubject<Post[]>;
-  public posts$: Observable<Post[]>;
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+  private apiUrl = 'http://localhost:3000';
 
-  private likesSubject: BehaviorSubject<Like[]>;
-  public likes$: Observable<Like[]>;
+  private postsSubject = new BehaviorSubject<Post[]>([]);
+  public posts$ = this.postsSubject.asObservable();
 
-  private bookmarksSubject: BehaviorSubject<Bookmark[]>;
-  public bookmarks$: Observable<Bookmark[]>;
+  private likesSubject = new BehaviorSubject<Like[]>([]);
+  public likes$ = this.likesSubject.asObservable();
 
-  private flagsSubject: BehaviorSubject<Flag[]>;
-  public flags$: Observable<Flag[]>;
+  private bookmarksSubject = new BehaviorSubject<Bookmark[]>([]);
+  public bookmarks$ = this.bookmarksSubject.asObservable();
 
-  constructor(
-    private storage: StorageService,
-    private userService: UserService
-  ) {
-    const posts = this.storage.getItem<Post[]>(POSTS_KEY) || [];
-    this.postsSubject = new BehaviorSubject<Post[]>(posts);
-    this.posts$ = this.postsSubject.asObservable();
+  private flagsSubject = new BehaviorSubject<Flag[]>([]);
+  public flags$ = this.flagsSubject.asObservable();
 
-    const likes = this.storage.getItem<Like[]>(LIKES_KEY) || [];
-    this.likesSubject = new BehaviorSubject<Like[]>(likes);
-    this.likes$ = this.likesSubject.asObservable();
-
-    const bookmarks = this.storage.getItem<Bookmark[]>(BOOKMARKS_KEY) || [];
-    this.bookmarksSubject = new BehaviorSubject<Bookmark[]>(bookmarks);
-    this.bookmarks$ = this.bookmarksSubject.asObservable();
-
-    const flags = this.storage.getItem<Flag[]>(FLAGS_KEY) || [];
-    this.flagsSubject = new BehaviorSubject<Flag[]>(flags);
-    this.flags$ = this.flagsSubject.asObservable();
+  constructor() {
+    // Load initial data
+    this.loadPosts();
+    this.loadLikes();
+    this.loadBookmarks();
+    this.loadFlags();
   }
 
   // Posts
+  loadPosts(): void {
+    this.http.get<Post[]>(`${this.apiUrl}/posts`).subscribe({
+      next: (posts) => this.postsSubject.next(posts.filter(p => !p.isDeleted)),
+      error: (error) => console.error('Error loading posts:', error)
+    });
+  }
+
   getPosts(): Post[] {
     return this.postsSubject.value;
   }
 
-  getPostById(id: string): Post | undefined {
-    return this.postsSubject.value.find(p => p.id === id);
+  getPostById(id: number): Observable<Post> {
+    return this.http.get<Post>(`${this.apiUrl}/posts/${id}`);
   }
 
-  createPost(post: Omit<Post, 'id' | 'createdAt' | 'updatedAt'>): Post {
-    const newPost: Post = {
+  createPost(post: Omit<Post, 'id' | 'createdAt' | 'updatedAt'>): Observable<Post> {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      throw new Error('User not authenticated');
+    }
+
+    const newPost = {
       ...post,
-      id: this.generateId(),
+      userId: currentUser.id,
+      authorName: currentUser.name,
+      isDeleted: false,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
-    const posts = [...this.postsSubject.value, newPost];
-    this.savePosts(posts);
-    return newPost;
+
+    return this.http.post<Post>(`${this.apiUrl}/posts`, newPost).pipe(
+      tap(createdPost => {
+        this.postsSubject.next([...this.postsSubject.value, createdPost]);
+      })
+    );
   }
 
-  updatePost(id: string, updates: Partial<Post>): Post | null {
-    const posts = this.postsSubject.value;
-    const index = posts.findIndex(p => p.id === id);
-    if (index === -1) return null;
-
-    const updatedPost = {
-      ...posts[index],
+  updatePost(id: number, updates: Partial<Post>): Observable<Post> {
+    const updatedData = {
       ...updates,
-      id: posts[index].id,
-      createdAt: posts[index].createdAt,
       updatedAt: Date.now()
     };
-    posts[index] = updatedPost;
-    this.savePosts(posts);
-    return updatedPost;
+
+    return this.http.patch<Post>(`${this.apiUrl}/posts/${id}`, updatedData).pipe(
+      tap(updatedPost => {
+        const posts = this.postsSubject.value.map(p => 
+          p.id === id ? updatedPost : p
+        );
+        this.postsSubject.next(posts);
+      })
+    );
   }
 
-  deletePost(id: string): boolean {
-    const posts = this.postsSubject.value.filter(p => p.id !== id);
-    if (posts.length === this.postsSubject.value.length) return false;
-    
-    this.savePosts(posts);
-    
-    // Also remove associated likes, bookmarks, and flags
-    this.removeLikesForPost(id);
-    this.removeBookmarksForPost(id);
-    this.removeFlagsForPost(id);
-    
-    return true;
-  }
-
-  private savePosts(posts: Post[]): void {
-    this.storage.setItem(POSTS_KEY, posts);
-    this.postsSubject.next(posts);
+  deletePost(id: number): Observable<Post> {
+    // Soft delete
+    return this.http.patch<Post>(`${this.apiUrl}/posts/${id}`, { isDeleted: true }).pipe(
+      tap(() => {
+        const posts = this.postsSubject.value.filter(p => p.id !== id);
+        this.postsSubject.next(posts);
+      })
+    );
   }
 
   // Likes
+  loadLikes(): void {
+    this.http.get<Like[]>(`${this.apiUrl}/likes`).subscribe({
+      next: (likes) => this.likesSubject.next(likes),
+      error: (error) => console.error('Error loading likes:', error)
+    });
+  }
+
   getLikes(): Like[] {
     return this.likesSubject.value;
   }
 
-  getLikesForPost(postId: string): Like[] {
+  getLikesForPost(postId: number): Like[] {
     return this.likesSubject.value.filter(l => l.postId === postId);
   }
 
-  isLikedByUser(postId: string, userId: string): boolean {
+  isLikedByUser(postId: number, userId: number): boolean {
     return this.likesSubject.value.some(l => l.postId === postId && l.userId === userId);
   }
 
-  toggleLike(postId: string): boolean {
-    const user = this.userService.getCurrentUser();
-    if (!user) return false;
+  toggleLike(postId: number): Observable<boolean> {
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
 
-    const likes = this.likesSubject.value;
-    const existingLike = likes.find(l => l.postId === postId && l.userId === user.id);
+    const existingLike = this.likesSubject.value.find(
+      l => l.postId === postId && l.userId === user.id
+    );
 
-    if (existingLike) {
+    if (existingLike && existingLike.id) {
       // Remove like
-      const newLikes = likes.filter(l => !(l.postId === postId && l.userId === user.id));
-      this.saveLikes(newLikes);
-      return false;
+      return this.http.delete(`${this.apiUrl}/likes/${existingLike.id}`).pipe(
+        tap(() => {
+          const likes = this.likesSubject.value.filter(l => l.id !== existingLike.id);
+          this.likesSubject.next(likes);
+        }),
+        map(() => false)
+      );
     } else {
       // Add like
       const newLike: Like = {
@@ -135,47 +142,54 @@ export class PostService {
         userId: user.id,
         createdAt: Date.now()
       };
-      const newLikes = [...likes, newLike];
-      this.saveLikes(newLikes);
-      return true;
+      return this.http.post<Like>(`${this.apiUrl}/likes`, newLike).pipe(
+        tap(createdLike => {
+          this.likesSubject.next([...this.likesSubject.value, createdLike]);
+        }),
+        map(() => true)
+      );
     }
   }
 
-  private removeLikesForPost(postId: string): void {
-    const likes = this.likesSubject.value.filter(l => l.postId !== postId);
-    this.saveLikes(likes);
-  }
-
-  private saveLikes(likes: Like[]): void {
-    this.storage.setItem(LIKES_KEY, likes);
-    this.likesSubject.next(likes);
-  }
-
   // Bookmarks
+  loadBookmarks(): void {
+    this.http.get<Bookmark[]>(`${this.apiUrl}/bookmarks`).subscribe({
+      next: (bookmarks) => this.bookmarksSubject.next(bookmarks),
+      error: (error) => console.error('Error loading bookmarks:', error)
+    });
+  }
+
   getBookmarks(): Bookmark[] {
     return this.bookmarksSubject.value;
   }
 
-  getBookmarksForUser(userId: string): Bookmark[] {
+  getBookmarksForUser(userId: number): Bookmark[] {
     return this.bookmarksSubject.value.filter(b => b.userId === userId);
   }
 
-  isBookmarkedByUser(postId: string, userId: string): boolean {
+  isBookmarkedByUser(postId: number, userId: number): boolean {
     return this.bookmarksSubject.value.some(b => b.postId === postId && b.userId === userId);
   }
 
-  toggleBookmark(postId: string): boolean {
-    const user = this.userService.getCurrentUser();
-    if (!user) return false;
+  toggleBookmark(postId: number): Observable<boolean> {
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
 
-    const bookmarks = this.bookmarksSubject.value;
-    const existingBookmark = bookmarks.find(b => b.postId === postId && b.userId === user.id);
+    const existingBookmark = this.bookmarksSubject.value.find(
+      b => b.postId === postId && b.userId === user.id
+    );
 
-    if (existingBookmark) {
+    if (existingBookmark && existingBookmark.id) {
       // Remove bookmark
-      const newBookmarks = bookmarks.filter(b => !(b.postId === postId && b.userId === user.id));
-      this.saveBookmarks(newBookmarks);
-      return false;
+      return this.http.delete(`${this.apiUrl}/bookmarks/${existingBookmark.id}`).pipe(
+        tap(() => {
+          const bookmarks = this.bookmarksSubject.value.filter(b => b.id !== existingBookmark.id);
+          this.bookmarksSubject.next(bookmarks);
+        }),
+        map(() => false)
+      );
     } else {
       // Add bookmark
       const newBookmark: Bookmark = {
@@ -183,63 +197,64 @@ export class PostService {
         userId: user.id,
         createdAt: Date.now()
       };
-      const newBookmarks = [...bookmarks, newBookmark];
-      this.saveBookmarks(newBookmarks);
-      return true;
+      return this.http.post<Bookmark>(`${this.apiUrl}/bookmarks`, newBookmark).pipe(
+        tap(createdBookmark => {
+          this.bookmarksSubject.next([...this.bookmarksSubject.value, createdBookmark]);
+        }),
+        map(() => true)
+      );
     }
   }
 
-  private removeBookmarksForPost(postId: string): void {
-    const bookmarks = this.bookmarksSubject.value.filter(b => b.postId !== postId);
-    this.saveBookmarks(bookmarks);
-  }
-
-  private saveBookmarks(bookmarks: Bookmark[]): void {
-    this.storage.setItem(BOOKMARKS_KEY, bookmarks);
-    this.bookmarksSubject.next(bookmarks);
-  }
-
   // Flags
+  loadFlags(): void {
+    this.http.get<Flag[]>(`${this.apiUrl}/flags`).subscribe({
+      next: (flags) => this.flagsSubject.next(flags),
+      error: (error) => console.error('Error loading flags:', error)
+    });
+  }
+
   getFlags(): Flag[] {
     return this.flagsSubject.value;
   }
 
-  getFlagsForPost(postId: string): Flag[] {
+  getFlagsForPost(postId: number): Flag[] {
     return this.flagsSubject.value.filter(f => f.postId === postId);
   }
 
-  createFlag(postId: string, reason: string): Flag {
-    const user = this.userService.getCurrentUser();
-    if (!user) throw new Error('No user logged in');
+  createFlag(postId: number, reason: string): Observable<Flag> {
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
 
     const newFlag: Flag = {
-      id: this.generateId(),
       postId,
       userId: user.id,
       reason,
       status: 'pending',
       createdAt: Date.now()
     };
-    const flags = [...this.flagsSubject.value, newFlag];
-    this.saveFlags(flags);
-    return newFlag;
+
+    return this.http.post<Flag>(`${this.apiUrl}/flags`, newFlag).pipe(
+      tap(createdFlag => {
+        this.flagsSubject.next([...this.flagsSubject.value, createdFlag]);
+      })
+    );
   }
 
-  private removeFlagsForPost(postId: string): void {
-    const flags = this.flagsSubject.value.filter(f => f.postId !== postId);
-    this.saveFlags(flags);
-  }
-
-  private saveFlags(flags: Flag[]): void {
-    this.storage.setItem(FLAGS_KEY, flags);
-    this.flagsSubject.next(flags);
+  updateFlagStatus(id: number, status: 'pending' | 'reviewed' | 'dismissed'): Observable<Flag> {
+    return this.http.patch<Flag>(`${this.apiUrl}/flags/${id}`, { status }).pipe(
+      tap(updatedFlag => {
+        const flags = this.flagsSubject.value.map(f => 
+          f.id === id ? updatedFlag : f
+        );
+        this.flagsSubject.next(flags);
+      })
+    );
   }
 
   // Utilities
-  private generateId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
-  }
-
   getAllTags(): string[] {
     const posts = this.postsSubject.value;
     const tagSet = new Set<string>();

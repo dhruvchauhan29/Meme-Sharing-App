@@ -1,0 +1,137 @@
+<div class="edit-page">
+  <div *ngIf="isLoading" class="loading-state">
+    <p>Loading post...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <div class="page-header">
+      <h1>Edit Post</h1>
+    </div>
+
+    <app-ui-card padding="large">
+      <form [formGroup]="editForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="title" class="form-label">
+            Title <span class="optional">(optional)</span>
+          </label>
+          <input
+            id="title"
+            type="text"
+            class="form-input"
+            formControlName="title"
+            placeholder="Enter a title for your post..."
+            maxlength="100"
+          />
+          <div class="form-error" *ngIf="titleControl?.invalid && titleControl?.touched">
+            <span *ngIf="titleControl?.errors?.['maxlength']">
+              Title must be at most 100 characters
+            </span>
+          </div>
+          <div class="form-hint">
+            {{ titleControl?.value?.length || 0 }}/100 characters
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="body" class="form-label">
+            Body <span class="required">*</span>
+          </label>
+          <textarea
+            id="body"
+            class="form-textarea"
+            formControlName="body"
+            placeholder="Share your thoughts, memes, or stories..."
+            rows="6"
+            maxlength="1000"
+          ></textarea>
+          <div class="form-error" *ngIf="bodyControl?.invalid && bodyControl?.touched">
+            <span *ngIf="bodyControl?.errors?.['required']">
+              Body is required
+            </span>
+            <span *ngIf="bodyControl?.errors?.['minlength']">
+              Body must be at least 10 characters
+            </span>
+            <span *ngIf="bodyControl?.errors?.['maxlength']">
+              Body must be at most 1000 characters
+            </span>
+          </div>
+          <div class="form-hint">
+            {{ bodyControl?.value?.length || 0 }}/1000 characters • Use ||text|| for spoilers
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="team" class="form-label">
+              Team <span class="required">*</span>
+            </label>
+            <select id="team" class="form-select" formControlName="team">
+              <option value="">Select a team</option>
+              <option *ngFor="let team of teams" [value]="team">{{ team }}</option>
+            </select>
+            <div class="form-error" *ngIf="teamControl?.invalid && teamControl?.touched">
+              <span *ngIf="teamControl?.errors?.['required']">
+                Team is required
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="mood" class="form-label">
+              Mood <span class="required">*</span>
+            </label>
+            <select id="mood" class="form-select" formControlName="mood">
+              <option value="">Select a mood</option>
+              <option *ngFor="let mood of moods" [value]="mood.value">{{ mood.label }}</option>
+            </select>
+            <div class="form-error" *ngIf="moodControl?.invalid && moodControl?.touched">
+              <span *ngIf="moodControl?.errors?.['required']">
+                Mood is required
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="tags" class="form-label">
+            Tags <span class="required">*</span>
+          </label>
+          <input
+            id="tags"
+            type="text"
+            class="form-input"
+            formControlName="tags"
+            placeholder="Enter tags separated by commas (e.g., funny, work, weekend)"
+          />
+          <div class="form-error" *ngIf="tagsControl?.invalid && tagsControl?.touched">
+            <span *ngIf="tagsControl?.errors?.['required']">
+              At least one tag is required
+            </span>
+          </div>
+          <div class="form-hint">
+            Separate tags with commas. Minimum 1 tag required.
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <app-ui-button
+            type="submit"
+            variant="primary"
+            [disabled]="editForm.invalid || isSubmitting"
+            [loading]="isSubmitting"
+          >
+            Update Post
+          </app-ui-button>
+          <app-ui-button
+            type="button"
+            variant="ghost"
+            [disabled]="isSubmitting"
+            (clicked)="cancel()"
+          >
+            Cancel
+          </app-ui-button>
+        </div>
+      </form>
+    </app-ui-card>
+  </div>
+</div>

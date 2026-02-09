@@ -1,0 +1,143 @@
+<div class="feed-container">
+  <!-- Header -->
+  <div class="feed-header">
+    <h1>HashedIn Meme Forum</h1>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card">
+    <div class="filters">
+      <!-- Search -->
+      <div class="filter-row">
+        <input
+          type="search"
+          class="search-input"
+          placeholder="Search posts by title or body..."
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange()"
+        />
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label">Team:</label>
+          <select class="filter-select" [(ngModel)]="selectedTeam" (ngModelChange)="onTeamChange()">
+            <option value="">All Teams</option>
+            <option *ngFor="let team of availableTeams" [value]="team">{{ team }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Mood:</label>
+          <select class="filter-select" [(ngModel)]="selectedMood" (ngModelChange)="onMoodChange()">
+            <option value="">All Moods</option>
+            <option *ngFor="let mood of availableMoods" [value]="mood">{{ mood }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Sort:</label>
+          <select class="filter-select" [(ngModel)]="sortOrder" (ngModelChange)="onSortChange()">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="filter-row" *ngIf="availableTags.length > 0">
+        <label class="filter-label">Tags:</label>
+        <div class="tags-container">
+          <span
+            *ngFor="let tag of availableTags"
+            class="tag"
+            [class.tag-selected]="isTagSelected(tag)"
+            (click)="onTagToggle(tag)"
+          >
+            {{ tag }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Toggle Actions -->
+      <div class="filter-row filter-actions">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="showSavedOnly" (ngModelChange)="onSavedOnlyToggle()">
+          <span>Saved only</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="showLikedOnly" (ngModelChange)="onLikedOnlyToggle()">
+          <span>Liked only</span>
+        </label>
+        <button class="clear-button" (click)="clearFilters()">
+          Clear Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Count -->
+  <div class="results-info">
+    Showing {{ filteredPosts.length }} of {{ posts.length }} posts
+  </div>
+
+  <!-- Posts Feed -->
+  <div class="posts-feed">
+    <div
+      *ngFor="let post of filteredPosts"
+      class="post-card"
+      [routerLink]="['/post', post.id]"
+    >
+      <div class="post-header">
+        <div class="post-meta">
+          <span class="post-author">{{ post.authorName }}</span>
+          <span class="post-separator">•</span>
+          <span class="post-team">{{ post.team }}</span>
+          <span class="post-separator">•</span>
+          <span class="post-time">{{ getRelativeTime(post.createdAt) }}</span>
+        </div>
+        <span class="post-mood">{{ post.mood }}</span>
+      </div>
+
+      <h3 *ngIf="post.title" class="post-title">{{ post.title }}</h3>
+
+      <p class="post-body">{{ getPostPreview(post.body) }}</p>
+
+      <div class="post-footer">
+        <div class="post-tags">
+          <span *ngFor="let tag of post.tags" class="post-tag">
+            {{ tag }}
+          </span>
+        </div>
+
+        <div class="post-actions">
+          <button
+            class="post-action"
+            [class.active]="isPostLiked(post.id)"
+            (click)="toggleLike($event, post.id)"
+            title="Like"
+          >
+            <span class="action-icon">❤️</span>
+            <span class="action-count">{{ getLikeCount(post.id) }}</span>
+          </button>
+          <button
+            class="post-action"
+            [class.active]="isPostBookmarked(post.id)"
+            (click)="toggleBookmark($event, post.id)"
+            title="Bookmark"
+          >
+            <span class="action-icon">🔖</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filteredPosts.length === 0" class="empty-state">
+      <p>No posts found matching your criteria.</p>
+      <button class="primary-button" (click)="clearFilters()">
+        Clear Filters
+      </button>
+    </div>
+  </div>
+</div>

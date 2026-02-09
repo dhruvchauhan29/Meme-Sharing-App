@@ -1,20 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { FeedComponent } from './features/feed/feed.component';
-import { DataInitService } from './core/services';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { NavbarComponent } from './shared/navbar/navbar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [FeedComponent],
+  imports: [RouterOutlet, NavbarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'HashedIn Meme Sharing App';
-
-  constructor(private dataInitService: DataInitService) {}
-
-  ngOnInit(): void {
-    // Initialize seed data on first run
-    this.dataInitService.initializeData();
-  }
 }

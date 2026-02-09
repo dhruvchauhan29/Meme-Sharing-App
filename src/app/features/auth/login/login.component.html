@@ -1,0 +1,53 @@
+<div class="login-container">
+  <div class="login-card">
+    <app-ui-card>
+      <h1>Login to Meme Sharing App</h1>
+      
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email"
+            placeholder="Enter your email"
+            class="form-control"
+            [class.error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
+          />
+          <span class="error-message" *ngIf="getFieldError('email')">{{ getFieldError('email') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            formControlName="password"
+            placeholder="Enter your password"
+            class="form-control"
+            [class.error]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+          />
+          <span class="error-message" *ngIf="getFieldError('password')">{{ getFieldError('password') }}</span>
+        </div>
+
+        <div class="error-message global-error" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <div class="form-actions">
+          <app-ui-button 
+            type="submit" 
+            [disabled]="loading"
+            [loading]="loading"
+          >
+            {{ loading ? 'Logging in...' : 'Login' }}
+          </app-ui-button>
+        </div>
+      </form>
+
+      <div class="register-link">
+        Don't have an account? <a routerLink="/auth/register">Register here</a>
+      </div>
+    </app-ui-card>
+  </div>
+</div>
