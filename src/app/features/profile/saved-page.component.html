@@ -1,0 +1,79 @@
+<div class="saved-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1>Saved Posts</h1>
+    <p class="page-subtitle">Posts you've bookmarked for later 🔖</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading saved posts...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Results Count -->
+  <div *ngIf="!loading && !error" class="results-info">
+    {{ savedPosts.length }} saved {{ savedPosts.length === 1 ? 'post' : 'posts' }}
+  </div>
+
+  <!-- Posts Feed -->
+  <div *ngIf="!loading && !error" class="posts-feed">
+    <div
+      *ngFor="let post of savedPosts"
+      class="post-card"
+      [routerLink]="['/post', post.id]"
+    >
+      <div class="post-header">
+        <div class="post-meta">
+          <span class="post-author">{{ post.authorName }}</span>
+          <span class="post-separator">•</span>
+          <span class="post-team">{{ post.team }}</span>
+          <span class="post-separator">•</span>
+          <span class="post-time">{{ getRelativeTime(post.createdAt) }}</span>
+        </div>
+        <span class="post-mood">{{ post.mood }}</span>
+      </div>
+
+      <h3 *ngIf="post.title" class="post-title">{{ post.title }}</h3>
+
+      <p class="post-body">{{ getPostPreview(post.body) }}</p>
+
+      <div class="post-footer">
+        <div class="post-tags">
+          <span *ngFor="let tag of post.tags" class="post-tag">
+            {{ tag }}
+          </span>
+        </div>
+
+        <div class="post-actions">
+          <button
+            class="post-action"
+            [class.active]="isPostLiked(post.id)"
+            (click)="toggleLike($event, post.id)"
+            title="Like"
+          >
+            <span class="action-icon">❤️</span>
+            <span class="action-count">{{ getLikeCount(post.id) }}</span>
+          </button>
+          <button
+            class="post-action"
+            [class.active]="isPostBookmarked(post.id)"
+            (click)="toggleBookmark($event, post.id)"
+            title="Bookmark"
+          >
+            <span class="action-icon">🔖</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="savedPosts.length === 0" class="empty-state">
+      <p>You haven't saved any posts yet.</p>
+      <a class="primary-button" routerLink="/feed">Explore Posts</a>
+    </div>
+  </div>
+</div>

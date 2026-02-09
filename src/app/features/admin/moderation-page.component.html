@@ -1,0 +1,140 @@
+<div class="moderation-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1>Content Moderation</h1>
+    <p class="page-subtitle">Review and manage flagged content</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading flags...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Moderation Content -->
+  <div *ngIf="!loading && !error" class="moderation-content">
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <button
+        class="filter-tab"
+        [class.active]="selectedStatus === 'all'"
+        (click)="onStatusFilterChange('all')"
+      >
+        All ({{ flags.length }})
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="selectedStatus === 'pending'"
+        (click)="onStatusFilterChange('pending')"
+      >
+        Pending ({{ countByStatus('pending') }})
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="selectedStatus === 'reviewed'"
+        (click)="onStatusFilterChange('reviewed')"
+      >
+        Reviewed ({{ countByStatus('reviewed') }})
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="selectedStatus === 'dismissed'"
+        (click)="onStatusFilterChange('dismissed')"
+      >
+        Dismissed ({{ countByStatus('dismissed') }})
+      </button>
+    </div>
+
+    <!-- Flags List -->
+    <div class="flags-list">
+      <div *ngFor="let flag of filteredFlags" class="flag-card">
+        <div class="flag-header">
+          <div class="flag-info">
+            <span class="flag-id">Flag #{{ flag.id }}</span>
+            <span class="flag-separator">•</span>
+            <span class="flag-time">{{ getRelativeTime(flag.createdAt) }}</span>
+          </div>
+          <span class="status-badge" [ngClass]="getStatusBadgeClass(flag.status)">
+            {{ flag.status }}
+          </span>
+        </div>
+
+        <div class="flag-content">
+          <div class="flag-reason">
+            <strong>Reason:</strong> {{ flag.reason }}
+          </div>
+          <div class="flag-reporter">
+            <strong>Reporter ID:</strong> {{ flag.userId }}
+          </div>
+        </div>
+
+        <div class="post-info" *ngIf="flag.post">
+          <div class="post-info-header">
+            <strong>Flagged Post:</strong>
+            <a
+              class="post-link"
+              [routerLink]="['/post', flag.postId]"
+              (click)="$event.stopPropagation()"
+            >
+              View Post →
+            </a>
+          </div>
+          <div class="post-details">
+            <div class="post-meta">
+              <span>Post #{{ flag.postId }}</span>
+              <span class="separator">•</span>
+              <span>by {{ flag.post.authorName }}</span>
+            </div>
+            <div *ngIf="flag.post.title" class="post-title">
+              {{ flag.post.title }}
+            </div>
+            <div class="post-preview">
+              {{ getPostPreview(flag.post.body) }}
+            </div>
+          </div>
+        </div>
+
+        <div class="post-info" *ngIf="!flag.post">
+          <div class="post-info-header">
+            <strong>Flagged Post:</strong>
+          </div>
+          <div class="post-not-found">
+            Post #{{ flag.postId }} not found (may have been deleted)
+          </div>
+        </div>
+
+        <div class="flag-actions">
+          <button
+            *ngIf="flag.status === 'pending'"
+            class="action-button reviewed"
+            (click)="updateFlagStatus(flag, 'reviewed')"
+          >
+            ✓ Mark as Reviewed
+          </button>
+          <button
+            *ngIf="flag.status === 'pending'"
+            class="action-button dismissed"
+            (click)="updateFlagStatus(flag, 'dismissed')"
+          >
+            ✕ Dismiss
+          </button>
+          <a
+            class="action-button view"
+            [routerLink]="['/post', flag.postId]"
+          >
+            👁 View Post
+          </a>
+        </div>
+      </div>
+
+      <div *ngIf="filteredFlags.length === 0" class="empty-state">
+        <p *ngIf="selectedStatus === 'all'">No flags to review.</p>
+        <p *ngIf="selectedStatus !== 'all'">No {{ selectedStatus }} flags.</p>
+      </div>
+    </div>
+  </div>
+</div>
