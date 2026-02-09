@@ -12,11 +12,12 @@ export class UiButtonComponent {
   @Input() variant: 'primary' | 'secondary' | 'danger' | 'ghost' = 'primary';
   @Input() size: 'small' | 'medium' | 'large' = 'medium';
   @Input() disabled = false;
+  @Input() loading = false;
   @Input() fullWidth = false;
   @Output() clicked = new EventEmitter<void>();
 
   onClick(): void {
-    if (!this.disabled) {
+    if (!this.disabled && !this.loading) {
       this.clicked.emit();
     }
   }
