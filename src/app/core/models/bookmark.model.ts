@@ -1,5 +1,6 @@
 export interface Bookmark {
-  userId: string;
-  postId: string;
-  createdAt: number;
+  id?: number;
+  userId: number;
+  postId: number;
+  createdAt?: number;
 }

@@ -1,8 +1,8 @@
 export interface Flag {
-  id: string;
-  userId: string;
-  postId: string;
+  id?: number;
+  userId: number;
+  postId: number;
   reason: string;
   status: 'pending' | 'reviewed' | 'dismissed';
-  createdAt: number;
+  createdAt?: number;
 }
